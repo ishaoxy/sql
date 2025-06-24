@@ -67,6 +67,7 @@ import org.opensearch.sql.ast.expression.subquery.ExistsSubquery;
 import org.opensearch.sql.ast.expression.subquery.InSubquery;
 import org.opensearch.sql.ast.expression.subquery.ScalarSubquery;
 import org.opensearch.sql.ast.tree.UnresolvedPlan;
+import org.opensearch.sql.calcite.type.ExprIPType;
 import org.opensearch.sql.calcite.type.ExprSqlType;
 import org.opensearch.sql.calcite.utils.OpenSearchTypeFactory;
 import org.opensearch.sql.calcite.utils.PlanUtils;
@@ -216,14 +217,29 @@ public class CalciteRexNodeVisitor extends AbstractNodeVisitor<RexNode, CalciteP
   public RexNode visitCompare(Compare node, CalcitePlanContext context) {
     RexNode leftCandidate = analyze(node.getLeft(), context);
     RexNode rightCandidate = analyze(node.getRight(), context);
+
     Boolean whetherCompareByTime =
         leftCandidate.getType() instanceof ExprSqlType
             || rightCandidate.getType() instanceof ExprSqlType;
 
-    final RexNode left =
-        transferCompareForDateRelated(leftCandidate, context, whetherCompareByTime);
-    final RexNode right =
-        transferCompareForDateRelated(rightCandidate, context, whetherCompareByTime);
+    Boolean whetherCompareByIP =
+        leftCandidate.getType() instanceof ExprIPType
+            || rightCandidate.getType() instanceof ExprIPType;
+
+    final RexNode left;
+    final RexNode right;
+
+    if (whetherCompareByTime) {
+      left = transferCompareForDateRelated(leftCandidate, context, true);
+      right = transferCompareForDateRelated(rightCandidate, context, true);
+    } else if (whetherCompareByIP) {
+      left = transferCompareForIPAddress(leftCandidate, context, true);
+      right = transferCompareForIPAddress(rightCandidate, context, true);
+    } else {
+      left = leftCandidate;
+      right = rightCandidate;
+    }
+
     return PPLFuncImpTable.INSTANCE.resolve(context.rexBuilder, node.getOperator(), left, right);
   }
 
@@ -232,6 +248,17 @@ public class CalciteRexNodeVisitor extends AbstractNodeVisitor<RexNode, CalciteP
     if (whetherCompareByTime) {
       RexNode transferredStringNode =
           context.rexBuilder.makeCall(PPLBuiltinOperators.TIMESTAMP, candidate);
+      return transferredStringNode;
+    } else {
+      return candidate;
+    }
+  }
+
+  private RexNode transferCompareForIPAddress(
+      RexNode candidate, CalcitePlanContext context, boolean whetherCompareByIP) {
+    if (whetherCompareByIP) {
+      RexNode transferredStringNode =
+          context.rexBuilder.makeCall(PPLBuiltinOperators.IPFORMAT, candidate);
       return transferredStringNode;
     } else {
       return candidate;

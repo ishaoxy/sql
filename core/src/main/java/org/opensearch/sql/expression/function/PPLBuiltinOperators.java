@@ -71,6 +71,7 @@ import org.opensearch.sql.expression.function.udf.datetime.WeekFunction;
 import org.opensearch.sql.expression.function.udf.datetime.WeekdayFunction;
 import org.opensearch.sql.expression.function.udf.datetime.YearweekFunction;
 import org.opensearch.sql.expression.function.udf.ip.CidrMatchFunction;
+import org.opensearch.sql.expression.function.udf.ip.IPFormatFunction;
 import org.opensearch.sql.expression.function.udf.math.CRC32Function;
 import org.opensearch.sql.expression.function.udf.math.ConvFunction;
 import org.opensearch.sql.expression.function.udf.math.DivideFunction;
@@ -101,6 +102,9 @@ public class PPLBuiltinOperators extends ReflectiveSqlOperatorTable {
   public static final SqlOperator DIVIDE = new DivideFunction().toUDF("DIVIDE");
   public static final SqlOperator SHA2 = CryptographicFunction.sha2().toUDF("SHA2");
   public static final SqlOperator CIDRMATCH = new CidrMatchFunction().toUDF("CIDRMATCH");
+
+  // IP functions
+  public static final SqlOperator IPFORMAT = new IPFormatFunction().toUDF("IPFORMAT");
 
   // Condition function
   public static final SqlOperator EARLIEST = new EarliestFunction().toUDF("EARLIEST");
