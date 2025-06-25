@@ -106,21 +106,12 @@ public class IPUtils {
     try {
       IPAddress address = new IPAddressString(s, ipAddressStringParameters).toAddress();
 
-      if (address.isIPv4()) {
-        // Format as 001.002.003.004
-        IPv4Address ipv4 = address.toIPv4();
-        return Arrays.stream(ipv4.getSegments())
-            .map(seg -> String.format("%03d", seg.getSegmentValue()))
-            .collect(Collectors.joining("."));
-      } else if (address.isIPv6()) {
-        // Format as full 4-digit groups
-        IPv6Address ipv6 = address.toIPv6();
-        return Arrays.stream(ipv6.getSegments())
-            .map(seg -> String.format("%04x", seg.getSegmentValue()))
-            .collect(Collectors.joining(":"));
-      } else {
-        return s; // fallback
-      }
+      IPv6Address ipv6 = toIPv6Address(address);
+
+      return Arrays.stream(ipv6.getSegments())
+          .map(seg -> String.format("%04x", seg.getSegmentValue()))
+          .collect(Collectors.joining(":"));
+
     } catch (AddressStringException e) {
       throw new SemanticCheckException(
           String.format("IP address '%s' is invalid: %s", s, e.getMessage()), e);
