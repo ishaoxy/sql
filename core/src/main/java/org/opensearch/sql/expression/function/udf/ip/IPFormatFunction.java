@@ -23,7 +23,6 @@ import org.opensearch.sql.utils.IPUtils;
 /**
  * <code>ip_format(ip)</code> transfer IP address into new format with zero prefixes
  *
- *
  * <p>Signature:
  *
  * <ul>
@@ -31,36 +30,38 @@ import org.opensearch.sql.utils.IPUtils;
  * </ul>
  */
 public class IPFormatFunction extends ImplementorUDF {
-    public IPFormatFunction() {
-        super(new IPFormatImplementor(), NullPolicy.ANY);
-    }
+  public IPFormatFunction() {
+    super(new IPFormatImplementor(), NullPolicy.ANY);
+  }
 
+  @Override
+  public SqlReturnTypeInference getReturnTypeInference() {
+    return PPLReturnTypes.STRING_FORCE_NULLABLE;
+  }
+
+  @Override
+  public UDFOperandMetadata getOperandMetadata() {
+    // EXPR_IP is mapped to SqlTypeFamily.VARCHAR
+    return PPLOperandTypes.STRING;
+  }
+
+  public static class IPFormatImplementor implements NotNullImplementor {
     @Override
-    public SqlReturnTypeInference getReturnTypeInference() { return PPLReturnTypes.STRING_FORCE_NULLABLE; }
-
-    @Override
-    public UDFOperandMetadata getOperandMetadata() {
-        // EXPR_IP is mapped to SqlTypeFamily.VARCHAR
-        return PPLOperandTypes.STRING;
+    public Expression implement(
+        RexToLixTranslator translator, RexCall call, List<Expression> translatedOperands) {
+      return Expressions.call(IPFormatImplementor.class, "ipFormat", translatedOperands);
     }
 
-    public static class IPFormatImplementor implements NotNullImplementor {
-        @Override
-        public Expression implement(
-            RexToLixTranslator translator, RexCall call, List<Expression> translatedOperands) {
-            return Expressions.call(IPFormatImplementor.class, "ipFormat", translatedOperands);
-        }
-
-        public static String ipFormat(String ip) {
-            try {
-                return IPUtils.formatIPAddress(ip);
-            } catch (Exception e) {
-                return ip;
-            }
-        }
-
-        public static String ipFormat(ExprIpValue ip) {
-            return ipFormat(ip.value());
-        }
+    public static String ipFormat(String ip) {
+      try {
+        return IPUtils.formatIPAddress(ip);
+      } catch (Exception e) {
+        return ip;
+      }
     }
+
+    public static String ipFormat(ExprIpValue ip) {
+      return ipFormat(ip.value());
+    }
+  }
 }

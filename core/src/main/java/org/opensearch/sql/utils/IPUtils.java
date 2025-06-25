@@ -11,11 +11,10 @@ import inet.ipaddr.IPAddressString;
 import inet.ipaddr.IPAddressStringParameters;
 import inet.ipaddr.ipv4.IPv4Address;
 import inet.ipaddr.ipv6.IPv6Address;
-import lombok.experimental.UtilityClass;
-import org.opensearch.sql.exception.SemanticCheckException;
-
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import lombok.experimental.UtilityClass;
+import org.opensearch.sql.exception.SemanticCheckException;
 
 @UtilityClass
 public class IPUtils {
@@ -99,9 +98,9 @@ public class IPUtils {
   }
 
   /**
-   * Formats the IP address into a standard expanded form:
-   * - IPv4: pads each octet to 3 digits, e.g., "1.2.3.4" -> "001.002.003.004"
-   * - IPv6: expands to full form with 4-digit groups, e.g., "2001:db8::1" -> "2001:0db8:0000:0000:0000:0000:0000:0001"
+   * Formats the IP address into a standard expanded form: - IPv4: pads each octet to 3 digits,
+   * e.g., "1.2.3.4" -> "001.002.003.004" - IPv6: expands to full form with 4-digit groups, e.g.,
+   * "2001:db8::1" -> "2001:0db8:0000:0000:0000:0000:0000:0001"
    */
   public static String formatIPAddress(String s) throws SemanticCheckException {
     try {
@@ -120,11 +119,11 @@ public class IPUtils {
             .map(seg -> String.format("%04x", seg.getSegmentValue()))
             .collect(Collectors.joining(":"));
       } else {
-        return s;  // fallback
+        return s; // fallback
       }
     } catch (AddressStringException e) {
-      throw new SemanticCheckException(String.format("IP address '%s' is invalid: %s", s, e.getMessage()), e);
+      throw new SemanticCheckException(
+          String.format("IP address '%s' is invalid: %s", s, e.getMessage()), e);
     }
   }
-
 }

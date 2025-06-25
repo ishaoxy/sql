@@ -5,13 +5,12 @@
 
 package org.opensearch.sql.calcite.type;
 
-import org.apache.calcite.sql.type.SqlTypeName;
 import org.opensearch.sql.calcite.utils.OpenSearchTypeFactory;
 import org.opensearch.sql.calcite.utils.OpenSearchTypeFactory.ExprUDT;
 import org.opensearch.sql.data.model.ExprIpValue;
 
 public class ExprIPType extends ExprJavaType {
   public ExprIPType(OpenSearchTypeFactory typeFactory) {
-      super(typeFactory, ExprUDT.EXPR_IP, ExprIpValue.class);
+    super(typeFactory, ExprUDT.EXPR_IP, ExprIpValue.class);
   }
 }
